@@ -1,0 +1,53 @@
+version: '2.2'
+
+services:
+
+
+  db:
+    image: mysql
+    restart: always
+    ports:  
+      - "3306:3306"
+    command: --default-authentication-plugin=mysql_native_password
+    environment:
+      - MYSQL_DATABASE=print
+      - MYSQL_ROOT_PASSWORD=print1234
+    volumes:
+      - ./db-scripts:/docker-entrypoint-initdb.d
+      - ./mysql_db_data_container:/var/lib/mysql
+    networks:
+      - print
+
+  adminer:
+    image: adminer
+    ports:
+      - "8080:8080"
+    environment:
+      ADMINER_DEFAULT_SERVER: dbmysql
+      ADMINER_DESIGN: pepa-linha
+    depends_on:
+      - db
+    links:
+      - db
+    networks:
+      - print
+
+  appl:
+    # dockerfile: Dockerfile
+    build:
+      dockerfile: Dockerfile
+      context: .
+    environment:
+      - PORT=8000
+    ports:
+      - "8000:8000"
+    depends_on:
+      - db
+    links:
+      - db
+    networks:
+      - print
+        
+networks:
+  print:
+    driver: bridge
