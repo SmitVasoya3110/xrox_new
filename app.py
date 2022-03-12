@@ -13,6 +13,7 @@ import PyPDF2 as pypdf
 from flask_mail import Mail, Message
 import threading
 import stripe
+import mimetypes
 
 from flask import Flask, request, redirect, jsonify, copy_current_request_context
 from werkzeug.utils import secure_filename
@@ -805,7 +806,7 @@ def upload_to_cart():
     # json_data = request.get_json()
     user_id = request.form.get('user_id')
     files = request.files.getlist('files[]')
-    typ, size = request.form.get('pageFormat').split('_')
+    size, typ = request.form.get('pageFormat').split('_')
     side = request.form.get('docFormat')
     tstamp = request.form.get('timestamp')
     server_stamp = str(time.time())
@@ -819,8 +820,14 @@ def upload_to_cart():
 
     for file in files:
         print(">}>}" * 20, file)
-        print(file.mimetype)
-        filename = str(user_id)+"_"+typ + "_" + size + "_" + side + "_" + server_stamp + "_" + secure_filename(file.filename)
+        mimet =""
+        if file.mimetype == "application/pdf":
+            mimet = "pdf"
+        if file.mimetype in MIME:
+            mimet = 'doc'
+        if file.mimetype in ("image/jpeg", "image/jpg", "image/png"):
+            mimet ="image"
+        filename = str(user_id)+"_"+mimet+"_"+size + "_" + typ + "_" + side + "_" + server_stamp + "_" + secure_filename(file.filename)
         print(filename)
         npath = os.path.join(file_path, filename)
         file.save(npath)
@@ -839,7 +846,7 @@ def fetch_user_files():
     list_files = os.listdir(file_path)
     file_res = []
     for file in list_files:
-        uid,size,typ,page_format,dstamp,filename = file.rsplit('_',5)
+        uid,mimt,size,typ,page_format,dstamp,filename = file.split('_',6)
         dict_file = {
             "size": size,
             "type": typ,
@@ -849,6 +856,73 @@ def fetch_user_files():
         }
         file_res.append(dict_file)
     return jsonify({"files": file_res}), 200
+
+@app.route('/calcuate-final-cart', methods=["POST"])
+def calculate_cart():
+    num_dict = {"numbers":[], "Total_Cost":0}
+    total_pages = 0
+    json_data = request.get_json()
+    user_id = json_data.get('user_id', 0)
+    tstamp = json_data.get('timestamp', 0)
+    files: list = json_data.get("files", [])
+    if not user_id or not tstamp:
+        return jsonify({"message":"user id and timestamp is missing in the request body"}), 402
+
+    if not files:
+        return jsonify({"message":"There are no files in request body"}), 402
+    base_path = os.path.join(app.config['UPLOAD_FOLDER'], str(user_id), str(tstamp))
+    for file in files:
+        file_pages = 0
+        file_path = os.path.join(base_path, file)
+        uid, mimet, size, typ, side, dstamp, filename = file.split('_', 6)
+        if mimet == 'pdf':
+            with open(file_path, 'rb') as fpath:
+                read_pdf = pypdf.PdfFileReader(fpath)
+                file_pages = read_pdf.getNumPages()
+                # num_dict['numbers'].append({"filename": filename, 'pages': num_pages})
+                print("NUM DICT +++", num_dict)
+                total_pages += file_pages
+        if mimet == 'image':
+            if 'Total_Images' in num_dict.keys():
+                num_dict['Total_Images'] += 1
+            else:
+                num_dict['Total_Images'] = 1
+            file_pages = 1
+            # num_dict['numbers'].append({"filename": filename, 'pages': 1})
+            total_pages += 1
+        if mimet == 'doc':
+            output = subprocess.run(
+                ["libreoffice", '--headless', '--convert-to', 'pdf', file_path, '--outdir', base_path])
+            print(output)
+            new_dest = os.path.splitext(base_path + f'/{filename}')[0] + ".pdf"
+            with open(new_dest, 'rb') as fpath:
+                read_pdf = pypdf.PdfFileReader(fpath)
+                file_pages = read_pdf.getNumPages()
+                # num_dict['numbers'].append({"filename": filename, 'pages': num_pages})
+                print(file_pages)
+                total_pages += file_pages
+            print("On Going")
+
+        cost = 0
+        print("In price Calc")
+        if size == "A4" and typ.lower() == 'color':
+            cost += round(A4_C(file_pages),2)
+            print(cost)
+        if size == "A4" and typ.lower() == 'bw':
+            cost += round(A4_BC(file_pages),2)
+            print(cost)
+        if size == "A3" and typ.lower() == 'color':
+            cost += round(A3_C(file_pages),2)
+            print(cost)
+        if size == "A3" and typ.lower() == 'bw':
+            cost += round(A3_BC(file_pages),2)
+            print(cost)
+        num_dict['numbers'].append({"filename": filename, 'pages': file_pages, "cost":cost})
+        num_dict["Total_Cost"] += cost
+
+    return num_dict
+
+
 if __name__ == "__main__":
     app.run(host="0.0.0.0", port=8000, debug=True, threaded=True)
 
