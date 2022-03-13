@@ -393,7 +393,7 @@ def place_order():
         print("++" * 20, type(user_id), size, typ, type(files), amount)
         try:
             qry = "insert into orders (user_id, size, type, sides, files, amount) values (%s,%s,%s,%s,%s,%s)"
-            values = (user_id, size, typ, sides, json.dumps(files), amount)
+            values = (user_id, 'various', "various", "various", json.dumps(files), amount)
             cur = mysql.connection.cursor()
             cur.execute(qry, values)
             mysql.connection.commit()
@@ -922,6 +922,27 @@ def calculate_cart():
 
     return num_dict
 
+@app.route('/delete-files')
+def delete_files():
+    try:
+        json_data = request.get_json()
+        files = json_data.get('files[]', [])
+        user_id = json_data.get('user_id')
+        tstamp = json_data.get('timestamp')
+        if not files:
+            return jsonify({"message":"Send files to be deleted"}), 402
+    except:
+        return jsonify({"message":"User Id or Timestamp is missing"}), 402
+    
+    base_path = os.path.join(app.config["UPLOAD_FOLDER"], str(user_id), str(tstamp))
+    for file in files:
+        file_path = os.path.join(base_path, file)
+        if os.path.isfile(file_path):
+            os.remove(file_path)
+            continue
+        continue
+    
+    return jsonify({"message":"Files successfully removed"}), 200
 
 if __name__ == "__main__":
     app.run(host="0.0.0.0", port=8000, debug=True, threaded=True)
