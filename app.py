@@ -835,7 +835,7 @@ def upload_to_cart():
     return jsonify({"Message": "Your files have been successfully uploaded"}), 200
 
 
-@app.route('/fetch-user-files', methods=["GET"])
+@app.route('/fetch-user-files', methods=["POST"])
 def fetch_user_files():
     json_data = request.get_json()
     user_id = json_data.get('user_id', 0)
