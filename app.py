@@ -845,6 +845,7 @@ def fetch_user_files():
     file_path = os.path.join(app.config["UPLOAD_FOLDER"], str(user_id), str(tstamp))
     list_files = os.listdir(file_path)
     file_res = []
+    id=1
     for file in list_files:
         uid,mimt,size,typ,page_format,dstamp,filename = file.split('_',6)
         dict_file = {
@@ -852,9 +853,11 @@ def fetch_user_files():
             "type": typ,
             "page_format": page_format,
             "filename": filename,
-            "server_file_name": file
+            "server_file_name": file,
+            "loop_id":id
         }
         file_res.append(dict_file)
+        id += 1
     return jsonify({"files": file_res}), 200
 
 @app.route('/calcuate-final-cart', methods=["POST"])
