@@ -41,10 +41,10 @@ app.config['MAIL_USE_SSL'] = True
 app.config['ORDER_MAIL'] = "websdaily@gmail.com"
 mail = Mail(app)
 
-app.config['MYSQL_HOST'] = 'localhost'  # db
+app.config['MYSQL_HOST'] = 'db'  # db
 app.config['MYSQL_USER'] = 'root'  # root
 # app.config['MYSQL_PORT'] = 3306
-app.config['MYSQL_PASSWORD'] = 'root1234'  # print1234
+app.config['MYSQL_PASSWORD'] = 'print1234'  # print1234
 app.config['MYSQL_DB'] = "print"
 mysql = MySQL(app)
 app.config['MAX_CONTENT_LENGTH'] = 1024 * 1024 * 24
