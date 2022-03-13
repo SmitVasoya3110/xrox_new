@@ -1,3 +1,4 @@
+import errno
 import time
 import os
 import subprocess
@@ -812,8 +813,12 @@ def upload_to_cart():
     server_stamp = str(time.time())
     file_path = os.path.join(app.config['UPLOAD_FOLDER'], str(user_id), str(tstamp))
 
-    if not os.path.isdir(file_path):
-        os.mkdir(file_path)
+    if not os.path.exists(file_path):
+        try:
+            os.makedirs(file_path, 0o700)
+        except OSError as e:
+            if e.errno != errno.EEXIST:
+                pass
 
     if False in [allowed_file(file.filename) for file in files]:
         return jsonify({"message": "check your file type", "allowed": list(ALLOWED_EXTENSIONS)}), 422
