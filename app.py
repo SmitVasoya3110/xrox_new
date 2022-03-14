@@ -1,3 +1,4 @@
+from crypt import methods
 import errno
 import time
 import os
@@ -927,7 +928,7 @@ def calculate_cart():
 
     return num_dict
 
-@app.route('/delete-files')
+@app.route('/delete-files', methods=["POST"])
 def delete_files():
     try:
         json_data = request.get_json()
