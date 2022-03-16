@@ -596,6 +596,7 @@ def pay():
     user_id = jsdata.get('user_id')
     files = jsdata.get('files')
     order_id = jsdata.get('order_id')
+    tstamp = jsdata.get('timestamp')
 
     if not email:
         return 'You need to send an Email!', 400
@@ -609,7 +610,8 @@ def pay():
             'files': json.dumps(files),
             'user_id': user_id,
             'email': email,
-            'amount': amount
+            'amount': amount,
+            'timestamp':str(tstamp)
         }
     )
 
@@ -620,26 +622,28 @@ def pay():
 def webhook():
     try:
         @copy_current_request_context
-        def send_attachment(order_id: int, files: list, psize: str, side: str, amount: float, receiver: str):
+        def send_attachment(order_id: int, files: list, psize: str, side: str, amount: float, receiver: str, timestamp:str):
             msg = Message('Order', sender=app.config['MAIL_USERNAME'], recipients=[app.config['ORDER_MAIL']])
             msg.body = f"Order has been received with <order_id:{order_id}> from <{receiver}>"
             fpath = []
+            rel_files = []
             print(files)
             for file in files:
                 file = secure_filename(file)
                 print(file)
-                nme = os.path.join(app.config['UPLOAD_FOLDER'], file)
+                nme = os.path.join(app.config['UPLOAD_FOLDER'], str(user_id), timestamp,file)
                 fpath.append(nme)
-                print("Full Path.....=>", (os.path.join(app.config['UPLOAD_FOLDER'], file)))
+                print("Full Path.....=>", nme)
                 buf = open(nme, 'rb').read()
                 print(magic.from_buffer(buf, mime=True))
                 msg.attach(file, magic.from_buffer(buf, mime=True), buf)
+                rel_files.append(file.split('_')[6])
             print("Sending Mail")
             mail.send(msg)
             print("successful sending")
             msg = Message("Customer Receipt", sender=app.config['MAIL_USERNAME'], recipients=[receiver])
             main_ = "Details of the Order Placed:\n\n"
-            msg.body = main_ + f"Order Id: {order_id} \n Files: {','.join(files)} \n Price: ${amount} \n type: {psize} \n Sides: {side} \n ABN: {ABN} \n Company: {COMPANY}"
+            msg.body = main_ + f"Order Id: {order_id} \n Files: {','.join(rel_files)} \n Price: ${amount} \n ABN: {ABN} \n Company: {COMPANY}"
             mail.send(msg)
             print("to the client")
 
@@ -660,6 +664,7 @@ def webhook():
         files = json.loads(metadata['files'])
         user_id = int(metadata['user_id'])
         amount = float(metadata['amount'])
+        tstamp = metadata['timestamp']
 
         # if not sig_header:
         #     return 'No Signature Header!', 400
@@ -691,7 +696,7 @@ def webhook():
             cur.close()
             sides = res[0]
             psize = res[1]+"_"+res[2]
-            threading.Thread(target=send_attachment, args=(order_id, files, psize, sides, amount, email)).start()
+            threading.Thread(target=send_attachment, args=(order_id, files, psize, sides, amount, email, tstamp)).start()
 
             return {"message":"OK"},200
         else:
@@ -702,8 +707,8 @@ def webhook():
         return '', 200
 
 
-@app.post('/api/v1/files/file-cart-upload')
-def cart_upload():
+# @app.post('/api/v1/files/file-cart-upload')
+# def cart_upload():
     @copy_current_request_context
     def travers_file(final_result: list, files: list, size: str, typ: str, side: str, dtime: str, user_id: int = None):
         num_dict = {"numbers": []}
