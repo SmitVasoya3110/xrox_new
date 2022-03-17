@@ -383,16 +383,16 @@ def place_order():
         try:
             json_data = request.json
             user_id = json_data.get('user_id')
-            size, typ = json_data.get('type', ' _ ').split('_')
+            # size, typ = json_data.get('type', ' _ ').split('_')
             files = json_data.get('files', [])
             amount = json_data.get('amount')
-            sides = json_data.get('pageFormat')
+            # sides = json_data.get('pageFormat')
         except Exception as e:
             print(e)
             return {"message": "Invalid data sent"}, 402
 
         print(type(json.dumps(files)))
-        print("++" * 20, type(user_id), size, typ, type(files), amount)
+        # print("++" * 20, type(user_id), size, typ, type(files), amount)
         try:
             qry = "insert into orders (user_id, size, type, sides, files, amount) values (%s,%s,%s,%s,%s,%s)"
             values = (user_id, 'various', "various", "various", json.dumps(files), amount)
