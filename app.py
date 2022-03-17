@@ -25,7 +25,7 @@ hostname = socket.gethostname()
 ip_address = socket.gethostbyname(hostname)
 print(ip_address)
 
-stripe.api_key = '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'
+stripe.api_key = 'sk_test_51KNpBmDiddQAhMW0bxLCLiUvtVWYguCrcucBj9bJmdPc9X85uGqMWD098FAyDaLqDjeG1iCVGWLuiP1a2qqB8Hm300FR6q18Dv'
 endpoint_secret = ''
 app = Flask(__name__)
 CORS(app)
@@ -40,7 +40,7 @@ app.config['MAIL_USERNAME'] = 'ssssmmmmiiiitttt@gmail.com'
 app.config['MAIL_PASSWORD'] = 'mqlgthtejpwtrocw'
 app.config['MAIL_USE_TLS'] = False
 app.config['MAIL_USE_SSL'] = True
-app.config['ORDER_MAIL'] = "websdaily@gmail.com"
+app.config['ORDER_MAIL'] = "ssmmiitt007@gmail.com"
 mail = Mail(app)
 
 app.config['MYSQL_HOST'] = 'db'  # db
@@ -708,102 +708,10 @@ def webhook():
             return 'Unexpected event type', 400
     except Exception as e:
         print(e)
-        return '', 200
+        return '', 500
 
 
-# @app.post('/api/v1/files/file-cart-upload')
-# def cart_upload():
-    @copy_current_request_context
-    def travers_file(final_result: list, files: list, size: str, typ: str, side: str, dtime: str, user_id: int = None):
-        num_dict = {"numbers": []}
-        total_pages = 0
-        print("Thread Started")
-        for file in files:
-            print(">}>}" * 20, file)
-            print(file.mimetype)
-            filename = typ + "_" + size + "_" + side + "_" + str(dtime) + "_" + secure_filename(file.filename)
-            print(filename)
-            if file.mimetype == "app/pdf":
-                npath = os.path.join(app.config['UPLOAD_FOLDER'], filename)
-                file.save(npath)
-                with open(npath, 'rb') as fpath:
-                    read_pdf = pypdf.PdfFileReader(fpath)
-                    num_pages = read_pdf.getNumPages()
-                    num_dict['numbers'].append({"filename": filename, 'pages': num_pages})
-                    print("NUM DICT +++", num_dict)
-                    total_pages += num_pages
 
-            if file.mimetype == "image/jpeg" or file.mimetype == "image/png" or file.mimetype == "image/jpg":
-                file.save(os.path.join(app.config['UPLOAD_FOLDER'], filename))
-                if 'Total_Images' in num_dict.keys():
-                    num_dict['Total_Images'] += 1
-                else:
-                    num_dict['Total_Images'] = 1
-                num_dict['numbers'].append({"filename": filename, 'pages': 1})
-                total_pages += 1
-
-            if file.mimetype in MIME:
-                file.save(os.path.join(app.config['UPLOAD_FOLDER'], filename))
-                source = os.path.join(app.config['UPLOAD_FOLDER'], filename)
-                destination = app.config['UPLOAD_FOLDER']
-                output = subprocess.run(
-                    ["libreoffice", '--headless', '--convert-to', 'pdf', source, '--outdir', destination])
-                print(output)
-                new_dest = os.path.splitext(destination + f'/{filename}')[0] + ".pdf"
-                with open(new_dest, 'rb') as fpath:
-                    read_pdf = pypdf.PdfFileReader(fpath)
-                    num_pages = read_pdf.getNumPages()
-                    num_dict['numbers'].append({"filename": filename, 'pages': num_pages})
-                    print(num_pages)
-                    total_pages += num_pages
-                print("On Going")
-
-        num_dict['Total_Pages'] = total_pages
-        if size == "A4" and typ.lower() == 'color':
-            num_dict['Total_cost'] = A4_C(total_pages)
-        if size == "A4" and typ.lower() == 'bw':
-            num_dict['Total_cost'] = total_pages
-        if size == "A3" and typ.lower() == 'color':
-            num_dict['Total_cost'] = A3_C(total_pages)
-        if size == "A3" and typ.lower() == 'bw':
-            num_dict['Total_cost'] = A3_BC(total_pages)
-        num_dict['page_format'] = side
-        print(num_dict)
-        final_result.append(num_dict)
-
-    metadata = json.loads(request.form.get('metadata'))
-    meta_data = metadata['metadata']
-    # user_id = meta_data['user_id']
-    current_tp = str(time.time())
-    traverse_files = time.perf_counter()
-
-    thread_list = []
-    final_result = []
-    for data in meta_data:
-        num_dict = {"numbers": []}
-        size, typ = request.form[data['docFormat']].split('_')
-        # TODO: check for every attributes and vaule is not null
-        # TODO: fetch files and check for extension
-        # TODO: Travers files and calculate page numbers and do ohter perfomantion -- done
-        # TODO: calculate price and numbers and file details for current iteration and append it to global response
-        files = request.files.getlist(data["files"])
-        side = request.form.get(data['sides'], "")
-        check_extension_start = time.perf_counter()
-
-        if False in [allowed_file(file.filename) for file in files]:
-            return jsonify({"message": "check your file type", "allowed": list(ALLOWED_EXTENSIONS)}), 422
-        print("Checking file extension as Taken time:", time.perf_counter() - check_extension_start)
-
-        th = threading.Thread(target=travers_file, args=(final_result, files, size, typ, side, current_tp))
-        th.start()
-        thread_list.append(th)
-    print("Thread started")
-    for thread in thread_list:
-        thread.join()
-    end_traversal = time.perf_counter()
-    print(final_result)
-    print("Estimated Time Taken By File Traversal and Page Calculation is: ", end_traversal - traverse_files)
-    return {"traversl_time": (end_traversal - traverse_files), "final_result": final_result}
 
 
 
