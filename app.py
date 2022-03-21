@@ -736,6 +736,7 @@ def upload_to_cart():
             os.makedirs(file_path, 0o700)
         except OSError as e:
             if e.errno != errno.EEXIST:
+                print(e)
                 pass
 
     if False in [allowed_file(file.filename) for file in files]:
