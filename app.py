@@ -642,12 +642,12 @@ def webhook():
             mail.send(msg)
             print("successful sending")
             msg = Message("Customer Receipt", sender=app.config['MAIL_USERNAME'], recipients=[receiver])
-            main_ = F"Details of the Order Placed:\n\n Order Id: {order_id} \n "
+            main_ = F"Details of the Order Placed:\n\n Order Id: {order_id} \n Total Price: ${amount}"
             msg.body = main_
             for file in files:
                 uid, mimet, size, typ, side_, dstamp, filename = file.split('_', 6)
-                msg.body +=f"File-Details: {filename} \t type: {typ} \t size: {size}, \t sides: {side_} \n"
-            msg.body += "ABN: {ABN} \n Company: {COMPANY}"    
+                msg.body +=f"File-Details: {filename}, type: {typ}, size: {size}, sides: {side_} \n"
+            msg.body += f"ABN: {ABN} \n Company: {COMPANY}"    
             mail.send(msg)
             print("to the client")
 
