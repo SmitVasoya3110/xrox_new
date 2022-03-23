@@ -727,6 +727,8 @@ def upload_to_cart():
     files = request.files.getlist('files[]')
     size, typ = request.form.get('pageFormat').split('_')
     side = request.form.get('docFormat')
+
+    print("This is Side==================================>",side)
     tstamp = request.form.get('timestamp')
     server_stamp = str(time.time())
     file_path = os.path.join(app.config['UPLOAD_FOLDER'], str(user_id), str(tstamp))
