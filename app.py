@@ -429,27 +429,36 @@ def place_order():
 
 @app.route('/confirm/order', methods=["POST"])
 def confirm_payment():
+    
     @copy_current_request_context
-    def send_attachment(order_id: int, files: list, psize: str, side: str, amount: int, receiver: str):
+    def send_attachment(order_id: int, files: list, psize: str, side: str, amount: float, receiver: str, timestamp:str):
         msg = Message('Order', sender=app.config['MAIL_USERNAME'], recipients=[app.config['ORDER_MAIL']])
         msg.body = f"Order has been received with <order_id:{order_id}> from <{receiver}>"
         fpath = []
+        # rel_files = []
         print(files)
         for file in files:
             file = secure_filename(file)
             print(file)
-            nme = os.path.join(app.config['UPLOAD_FOLDER'], file)
+            nme = os.path.join(app.config['UPLOAD_FOLDER'], str(user_id), timestamp,file)
             fpath.append(nme)
-            print("Full Path.....=>", (os.path.join(app.config['UPLOAD_FOLDER'], file)))
+            print("Full Path.....=>", nme)
             buf = open(nme, 'rb').read()
             print(magic.from_buffer(buf, mime=True))
             msg.attach(file, magic.from_buffer(buf, mime=True), buf)
-        print(msg)
+            # rel_files.append(file.split('_')[6])
+        print("Sending Mail")
         mail.send(msg)
+        print("successful sending")
         msg = Message("Customer Receipt", sender=app.config['MAIL_USERNAME'], recipients=[receiver])
-        main_ = "Details of the Order Placed:\n\n"
-        msg.body = main_ + f"Order Id: {order_id} \n Files: {','.join(files)} \n Price: ${amount} \n Sides: {side} \n ABN: {ABN} \n Company: {COMPANY}"
+        main_ = F"Details of the Order Placed:\n\n Order Id: {order_id} \n Total Price: ${amount}"
+        msg.body = main_
+        for file in files:
+            uid, mimet, size, typ, side_, dstamp, filename = file.split('_', 6)
+            msg.body +=f"File-Details: {filename}, type: {typ}, size: {size}, sides: {side_} \n"
+        msg.body += f"ABN: {ABN} \n Company: {COMPANY}"    
         mail.send(msg)
+        print("to the client")
 
         for pth in fpath:
             if os.path.isfile(pth) and os.path.exists(pth):
@@ -457,23 +466,28 @@ def confirm_payment():
                 continue
             continue
 
+
     json_data = request.json
-    order_id = json_data.get('order_id', 0)
-    user_id = json_data.get('user_id', 0)
-    files = json_data.get('fileNames', [])
-    amount = json_data.get('Total_Cost', 0)
-    email = json_data.get('email', '')
-    psize, typ = json_data.get('docFormat', ' _ ').split('_')
-    sides = json_data.get('pageaFormat')
-    typ = "color" if typ.lower() == "c" else "black & white"
+    order_id = json_data.get('order_id')
+    files = json_data.get('files')
+    user_id = json_data.get('user_id')
+    email = json_data.get('email')
+    amount = json_data.get('amount')
+    tstamp = json_data.get('order_id')
     if order_id and files and amount and email:
         qry = "insert into payments (order_id, user_id,amount, is_successful) values (%s, %s, %s, %s)"
         cur = mysql.connection.cursor()
         cur.execute(qry, (order_id, user_id, amount, 1))
         mysql.connection.commit()
-        threading.Thread(target=send_attachment, args=(order_id, files, psize, sides, amount, email)).start()
-        return {"message": "OK"}, 200
-
+        # threading.Thread(target=send_attachment, args=(order_id, files, psize, sides, amount, email)).start()
+       
+        ftch = "SELECT sides, size, type from orders WHERE order_id = %s"
+        cur.execute(ftch, (order_id,))
+        res = cur.fetchone()
+        cur.close()
+        sides = res[0]
+        psize = res[1]+"_"+res[2]
+        threading.Thread(target=send_attachment, args=(order_id, files, psize, sides, amount, email, tstamp)).start()
 
 # 
 # @app.route('/uploads', methods=["POST"])
