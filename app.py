@@ -862,6 +862,7 @@ def calculate_cart():
         num_dict['numbers'].append({"filename": filename, 'pages': file_pages, "quantity":quantity,"cost":cost})
         num_dict["Total_Cost"] += cost
 
+    if total_pages <= 3: num_dict["Total_Cost"] = 3
     return num_dict
 
 @app.route('/delete-files', methods=["POST"])
