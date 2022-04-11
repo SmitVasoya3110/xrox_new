@@ -40,7 +40,7 @@ app.config['MAIL_USERNAME'] = 'ssssmmmmiiiitttt@gmail.com'
 app.config['MAIL_PASSWORD'] = 'dbzxmyxliwpgdjyh'
 app.config['MAIL_USE_TLS'] = False
 app.config['MAIL_USE_SSL'] = True
-app.config['ORDER_MAIL'] = "websdaily@gmail.com"
+app.config['ORDER_MAIL'] = "ihub7.bondi@gmail.com"
 mail = Mail(app)
 
 app.config['MYSQL_HOST'] = 'db'  # db
@@ -660,7 +660,7 @@ def webhook():
             msg.body = main_
             for file in files:
                 uid, mimet, size, typ, side_, dstamp, filename = file.split('_', 6)
-                msg.body +=f"File-Details: {filename}, type: {typ}, size: {size}, sides: {side_} \n"
+                msg.body +=f" {filename} ... type: {typ}, size: {size}, sides: {side_} \n"
             msg.body += f"ABN: {ABN} \n Company: {COMPANY}"    
             mail.send(msg)
             print("to the client")
@@ -814,8 +814,9 @@ def calculate_cart():
     base_path = os.path.join(app.config['UPLOAD_FOLDER'], str(user_id), str(tstamp))
     for file in files:
         file_pages = 0
-        file_path = os.path.join(base_path, file)
-        uid, mimet, size, typ, side, dstamp, filename = file.split('_', 6)
+        file_path = os.path.join(base_path, file['file'])
+        quantity = file['quantity']
+        uid, mimet, size, typ, side, dstamp, filename = file['file'].split('_', 6)
         if mimet == 'pdf':
             with open(file_path, 'rb') as fpath:
                 read_pdf = pypdf.PdfFileReader(fpath)
@@ -847,18 +848,18 @@ def calculate_cart():
         cost = 0
         print("In price Calc")
         if size == "A4" and typ.lower() == 'color':
-            cost += round(A4_C(file_pages),2)
+            cost += (round(A4_C(file_pages),2)) * quantity
             print(cost)
         if size == "A4" and typ.lower() == 'bw':
-            cost += round(A4_BC(file_pages),2)
+            cost += (round(A4_BC(file_pages),2)) * quantity
             print(cost)
         if size == "A3" and typ.lower() == 'color':
-            cost += round(A3_C(file_pages),2)
+            cost += (round(A3_C(file_pages),2)) * quantity
             print(cost)
         if size == "A3" and typ.lower() == 'bw':
-            cost += round(A3_BC(file_pages),2)
+            cost += (round(A3_BC(file_pages),2)) * quantity
             print(cost)
-        num_dict['numbers'].append({"filename": filename, 'pages': file_pages, "cost":cost})
+        num_dict['numbers'].append({"filename": filename, 'pages': file_pages, "quantity":quantity,"cost":cost})
         num_dict["Total_Cost"] += cost
 
     return num_dict
