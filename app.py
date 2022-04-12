@@ -815,7 +815,7 @@ def calculate_cart():
     for file in files:
         file_pages = 0
         file_path = os.path.join(base_path, file['file'])
-        quantity = file['quantity']
+        quantity = int(file['quantity'])
         uid, mimet, size, typ, side, dstamp, filename = file['file'].split('_', 6)
         if mimet == 'pdf':
             with open(file_path, 'rb') as fpath:
