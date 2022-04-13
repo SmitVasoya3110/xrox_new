@@ -25,7 +25,8 @@ hostname = socket.gethostname()
 ip_address = socket.gethostbyname(hostname)
 print(ip_address)
 
-stripe.api_key = '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'
+# stripe.api_key = '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'
+stripe.api_key = 'sk_test_51KNpBmDiddQAhMW0bxLCLiUvtVWYguCrcucBj9bJmdPc9X85uGqMWD098FAyDaLqDjeG1iCVGWLuiP1a2qqB8Hm300FR6q18Dv'
 endpoint_secret = ''
 app = Flask(__name__)
 CORS(app)
@@ -40,7 +41,7 @@ app.config['MAIL_USERNAME'] = 'ssssmmmmiiiitttt@gmail.com'
 app.config['MAIL_PASSWORD'] = 'dbzxmyxliwpgdjyh'
 app.config['MAIL_USE_TLS'] = False
 app.config['MAIL_USE_SSL'] = True
-app.config['ORDER_MAIL'] = "ihub7.bondi@gmail.com"
+app.config['ORDER_MAIL'] = "smitvasoya3110@gmail.com"
 mail = Mail(app)
 
 app.config['MYSQL_HOST'] = 'db'  # db
@@ -643,14 +644,16 @@ def webhook():
             # rel_files = []
             print(files)
             for file in files:
-                file = secure_filename(file)
-                print(file)
-                nme = os.path.join(app.config['UPLOAD_FOLDER'], str(user_id), timestamp,file)
+                quantity = file['quantity']
+                filen = secure_filename(file['file'])
+                print(filen)
+                nme = os.path.join(app.config['UPLOAD_FOLDER'], str(user_id), timestamp,filen)
                 fpath.append(nme)
                 print("Full Path.....=>", nme)
                 buf = open(nme, 'rb').read()
                 print(magic.from_buffer(buf, mime=True))
-                msg.attach(file, magic.from_buffer(buf, mime=True), buf)
+                filen = f'{quantity}_copies_' + filen
+                msg.attach(filen, magic.from_buffer(buf, mime=True), buf)
                 # rel_files.append(file.split('_')[6])
             print("Sending Mail")
             mail.send(msg)
@@ -659,8 +662,9 @@ def webhook():
             main_ = F"Details of the Order Placed:\n\n Order Id: {order_id} \n Total Price: ${amount}"
             msg.body = main_
             for file in files:
-                uid, mimet, size, typ, side_, dstamp, filename = file.split('_', 6)
-                msg.body +=f" {filename} ... type: {typ}, size: {size}, sides: {side_} \n"
+                quantity = file['quantity']
+                uid, mimet, size, typ, side_, dstamp, filename = file['file'].split('_', 6)
+                msg.body +=f" {filename} ... type: {typ}, size: {size}, sides: {side_}, {quantity} copies \n"
             msg.body += f"ABN: {ABN} \n Company: {COMPANY}"    
             mail.send(msg)
             print("to the client")
