@@ -33,7 +33,7 @@ app = Flask(__name__)
 CORS(app)
 
 jnj_env = Environment(
-    loader=PackageLoader("main"),
+    loader=PackageLoader("app"),
     autoescape=select_autoescape()
 )
 
