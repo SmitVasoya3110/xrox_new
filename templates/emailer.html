@@ -1,0 +1,34 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+</head>
+<body>
+<table>
+        <tr>
+          <td> Order Id {{ order_id }} </td>
+        </tr>
+
+        <tr>
+            <td>Amount $: {{ amount }} </td>
+        </tr>
+{% for obj in files %}
+    <tr>
+     <td>{{obj['filename']}}</td>
+     <td>{{obj['size']}}</td>
+     <td>{{obj['color']}}</td>
+     <td>{{obj['side']}}</td>
+     <td>{{obj['copies']}} copies</td>
+    </tr>
+{% endfor %}
+<tr>
+<td>ABN</td>
+<td>16612402767</td>
+</tr>
+<tr>
+<td>Company</td>
+<td>Printing 7 Bondi</td>
+</tr>
+</table>
+</body>
+</html>

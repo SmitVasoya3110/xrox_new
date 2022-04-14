@@ -6,6 +6,7 @@ import subprocess
 import json
 import socket
 from flask_jwt_extended import JWTManager, create_access_token, jwt_required, get_jwt_identity, decode_token
+from jinja2 import Environment, PackageLoader, select_autoescape
 import datetime
 # from flask_jwt import current_identity
 from flask_cors import CORS
@@ -31,6 +32,10 @@ endpoint_secret = ''
 app = Flask(__name__)
 CORS(app)
 
+jnj_env = Environment(
+    loader=PackageLoader("main"),
+    autoescape=select_autoescape()
+)
 
 app.config['SECRET_KEY'] = 'smit-->p-->this__is~secret886651234'
 jwt = JWTManager(app)
@@ -659,13 +664,16 @@ def webhook():
             mail.send(msg)
             print("successful sending")
             msg = Message("Customer Receipt", sender=app.config['MAIL_USERNAME'], recipients=[receiver])
-            main_ = F"Details of the Order Placed:\n\n Order Id: {order_id} \n Total Price: ${amount}"
+            main_ = F"Details of the Order Placed"
             msg.body = main_
+            array_html = []
             for file in files:
                 quantity = file['quantity']
                 uid, mimet, size, typ, side_, dstamp, filename = file['file'].split('_', 6)
-                msg.body +=f" {filename} ... type: {typ}, size: {size}, sides: {side_}, {quantity} copies \n"
-            msg.body += f"ABN: {ABN} \n Company: {COMPANY}"    
+                temp_dict = {'filename':filename, 'size':size, 'side':side_, 'color':typ, 'copies':quantity}
+                array_html.append(temp_dict)
+            template = jnj_env.get_template('emailer.html')
+            msg.html = template.render(order_id=order_id, amount=amount, files=array_html)     
             mail.send(msg)
             print("to the client")
 
