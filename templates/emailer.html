@@ -3,6 +3,55 @@
 <head>
     <meta charset="UTF-8">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-EVSTQN3/azprG1Anm3QDgpJLIm9Nao0Yz1ztcQTwFspd3yD65VohhpuuCOmLASjC" crossorigin="anonymous">
+    <style>
+        table {
+            border: 1px solid #ccc;
+            border-collapse: collapse;
+            margin: 0;
+            padding: 0;
+            width: 100%;
+            table-layout: fixed;
+          }
+          table tr {
+            background-color: #f8f8f8;
+            border: 1px solid #ddd;
+            padding: .35em;
+          }
+          table td {
+            padding: .625em;
+            text-align: center;
+          }
+          
+          @media screen and (max-width: 600px) {
+            table {
+              border: 0;
+            }
+            
+            table tr {
+              border-bottom: 3px solid #ddd;
+              display: block;
+              margin-bottom: .625em;
+            }
+            
+            table td {
+              border-bottom: 1px solid #ddd;
+              display: block;
+              font-size: .8em;
+              text-align: right;
+            }
+            
+            table td:last-child {
+              border-bottom: 0;
+            }
+        }
+           
+          
+          /* general styling */
+          body {
+            font-family: "Open Sans", sans-serif;
+            line-height: 1.25;
+          }
+    </style>
 </head>
 <body>
 <table class="table">
