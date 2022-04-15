@@ -835,7 +835,7 @@ def calculate_cart():
                 file_pages = read_pdf.getNumPages()
                 # num_dict['numbers'].append({"filename": filename, 'pages': num_pages})
                 print("NUM DICT +++", num_dict)
-                total_pages += file_pages
+                total_pages += file_pages*quantity
         if mimet == 'image':
             if 'Total_Images' in num_dict.keys():
                 num_dict['Total_Images'] += 1
@@ -843,7 +843,7 @@ def calculate_cart():
                 num_dict['Total_Images'] = 1
             file_pages = 1
             # num_dict['numbers'].append({"filename": filename, 'pages': 1})
-            total_pages += 1
+            total_pages += 1 * quantity
         if mimet == 'doc':
             output = subprocess.run(
                 ["libreoffice", '--headless', '--convert-to', 'pdf', file_path, '--outdir', base_path])
@@ -854,7 +854,7 @@ def calculate_cart():
                 file_pages = read_pdf.getNumPages()
                 # num_dict['numbers'].append({"filename": filename, 'pages': num_pages})
                 print(file_pages)
-                total_pages += file_pages
+                total_pages += file_pages * quantity
             print("On Going")
 
         cost = 0
@@ -874,7 +874,9 @@ def calculate_cart():
         num_dict['numbers'].append({"filename": filename, 'pages': file_pages, "quantity":quantity,"cost":cost})
         num_dict["Total_Cost"] += cost
 
-    if total_pages <= 3: num_dict["Total_Cost"] = 3
+    if total_pages < 4:
+        print(total_pages) 
+        num_dict["Total_Cost"] = 3
     return num_dict
 
 @app.route('/delete-files', methods=["POST"])
