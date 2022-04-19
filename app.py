@@ -831,7 +831,7 @@ def calculate_cart():
         uid, mimet, size, typ, side, dstamp, filename = file['file'].split('_', 6)
         if mimet == 'pdf':
             with open(file_path, 'rb') as fpath:
-                read_pdf = pypdf.PdfFileReader(fpath)
+                read_pdf = pypdf.PdfFileReader(fpath, strict=False)
                 file_pages = read_pdf.getNumPages()
                 # num_dict['numbers'].append({"filename": filename, 'pages': num_pages})
                 print("NUM DICT +++", num_dict)
