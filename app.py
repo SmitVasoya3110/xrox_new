@@ -848,7 +848,9 @@ def calculate_cart():
             output = subprocess.run(
                 ["libreoffice", '--headless', '--convert-to', 'pdf', file_path, '--outdir', base_path])
             print(output)
-            new_dest = os.path.splitext(base_path + f'/{filename}')[0] + ".pdf"
+            
+            new_var = file['file']
+            new_dest = os.path.splitext(base_path + f'/{new_var}')[0] + ".pdf"
             with open(new_dest, 'rb') as fpath:
                 read_pdf = pypdf.PdfFileReader(fpath)
                 file_pages = read_pdf.getNumPages()
