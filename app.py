@@ -16,6 +16,7 @@ import PyPDF2 as pypdf
 from flask_mail import Mail, Message
 import threading
 import stripe
+from stripe import error as stripe_error
 import mimetypes
 
 from flask import Flask, request, redirect, jsonify, copy_current_request_context
@@ -609,34 +610,36 @@ def refresh_token():
 
 @app.route('/pay', methods=['POST'])
 def pay():
-    jsdata = request.get_json()
-    print("THIS IS JSON DATA", jsdata)
-    email = jsdata.get('email')
-    amount = jsdata.get('amount')
-    user_id = jsdata.get('user_id')
-    files = jsdata.get('files')
-    order_id = jsdata.get('order_id')
-    tstamp = jsdata.get('timestamp')
+    try:
+        jsdata = request.get_json()
+        print("THIS IS JSON DATA", jsdata)
+        email = jsdata.get('email')
+        amount = jsdata.get('amount')
+        user_id = jsdata.get('user_id')
+        files = jsdata.get('files')
+        order_id = jsdata.get('order_id')
+        tstamp = jsdata.get('timestamp')
 
-    if not email:
-        return 'You need to send an Email!', 400
+        if not email:
+            return 'You need to send an Email!', 400
 
-    intent = stripe.PaymentIntent.create(
-        amount=int(amount*100),
-        currency='aud',
-        receipt_email=email,
-        metadata={
-            'order_id': order_id,
-            'files': json.dumps(files),
-            'user_id': user_id,
-            'email': email,
-            'amount': amount,
-            'timestamp':str(tstamp)
-        }
-    )
+        intent = stripe.PaymentIntent.create(
+            amount=int(amount*100),
+            currency='aud',
+            receipt_email=email,
+            metadata={
+                'order_id': order_id,
+                'files': json.dumps(files),
+                'user_id': user_id,
+                'email': email,
+                'amount': amount,
+                'timestamp':str(tstamp)
+            }
+        )
 
-    return {"client_secret": intent['client_secret']}, 200
-
+        return {"client_secret": intent['client_secret']}, 200
+    except stripe_error.InvalidRequestError as e:
+        return {"message": "Your payment is not succeeded. Try again with reducing files or with short filenames"}
 
 @app.route('/webhook', methods=['POST'])
 def webhook():
