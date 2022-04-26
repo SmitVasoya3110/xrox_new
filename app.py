@@ -60,7 +60,6 @@ MIME = ['application/vnd.openxmlformats-officedocument.wordprocessingml.document
 ABN = 16612402767
 COMPANY = "Printing 7 Bondi"
 
-mysql.connection.cursor()
 
 @app.errorhandler(413)
 def too_large(e):
