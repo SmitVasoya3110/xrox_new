@@ -1,10 +1,10 @@
-from crypt import methods
+# from crypt import methods
 import errno
 import time
 import os
 import subprocess
 import json
-import socket
+# import socket
 from flask_jwt_extended import JWTManager, create_access_token, jwt_required, get_jwt_identity, decode_token
 from jinja2 import Environment, PackageLoader, select_autoescape
 import datetime
@@ -23,9 +23,6 @@ from flask import Flask, request, redirect, jsonify, copy_current_request_contex
 from werkzeug.utils import secure_filename
 
 welcome_message = "Welcome to Online Printing. You have successfully registered with us.\nThank you..."
-hostname = socket.gethostname()
-ip_address = socket.gethostbyname(hostname)
-print(ip_address)
 
 stripe.api_key = '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'
 # stripe.api_key = 'sk_test_51KNpBmDiddQAhMW0bxLCLiUvtVWYguCrcucBj9bJmdPc9X85uGqMWD098FAyDaLqDjeG1iCVGWLuiP1a2qqB8Hm300FR6q18Dv'
@@ -616,7 +613,7 @@ def pay():
         email = jsdata.get('email')
         amount = jsdata.get('amount')
         user_id = jsdata.get('user_id')
-        files = jsdata.get('files')
+        # files = jsdata.get('files')
         order_id = jsdata.get('order_id')
         tstamp = jsdata.get('timestamp')
 
@@ -629,7 +626,7 @@ def pay():
             receipt_email=email,
             metadata={
                 'order_id': order_id,
-                'files': json.dumps(files),
+                # 'files': json.dumps(files),
                 'user_id': user_id,
                 'email': email,
                 'amount': amount,
@@ -905,6 +902,17 @@ def delete_files():
         continue
     
     return jsonify({"message":"Files successfully removed"}), 200
+
+
+def fetch_files_db(orderId):
+    sql = """Select files from orders where orde_id=%s"""
+    cur = mysql.connection.cursor()
+    cur.execute(sql, (orderId,))
+    result = cur.fetchone()
+    print(result)
+    cur.close()
+
+fetch_files_db(157)     
 
 if __name__ == "__main__":
     app.run(host="0.0.0.0", port=8000, debug=True, threaded=True)
