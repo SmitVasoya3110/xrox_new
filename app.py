@@ -60,6 +60,7 @@ MIME = ['application/vnd.openxmlformats-officedocument.wordprocessingml.document
 ABN = 16612402767
 COMPANY = "Printing 7 Bondi"
 
+mysql.connection.cursor()
 
 @app.errorhandler(413)
 def too_large(e):
@@ -626,7 +627,6 @@ def pay():
             receipt_email=email,
             metadata={
                 'order_id': order_id,
-                # 'files': json.dumps(files),
                 'user_id': user_id,
                 'email': email,
                 'amount': amount,
@@ -691,7 +691,7 @@ def webhook():
         order_id = int(metadata['order_id'])
         charge_id = payload['data']['object']['charges']['data'][0]['id']
         sig_header = request.headers.get('Stripe_Signature', None)
-        files = json.loads(metadata['files'])
+        # files = json.loads(metadata['files'])
         user_id = int(metadata['user_id'])
         amount = float(metadata['amount'])
         tstamp = metadata['timestamp']
@@ -720,12 +720,13 @@ def webhook():
             cur.execute(sqlq, insert_data)
             mysql.connection.commit()
 
-            ftch = "SELECT sides, size, type from orders WHERE order_id = %s"
+            ftch = "SELECT sides, size, type, files from orders WHERE order_id = %s"
             cur.execute(ftch, (order_id,))
             res = cur.fetchone()
             cur.close()
             sides = res[0]
             psize = res[1]+"_"+res[2]
+            files = json.loads(res[3])
             threading.Thread(target=send_attachment, args=(order_id, files, psize, sides, amount, email, tstamp)).start()
 
             return {"message":"OK"},200
