@@ -905,15 +905,15 @@ def delete_files():
     return jsonify({"message":"Files successfully removed"}), 200
 
 
-def fetch_files_db(orderId):
-    sql = """Select files from orders where orde_id=%s"""
-    cur = mysql.connection.cursor()
-    cur.execute(sql, (orderId,))
-    result = cur.fetchone()
-    print(result)
-    cur.close()
+# def fetch_files_db(orderId):
+#     sql = """Select files from orders where orde_id=%s"""
+#     cur = mysql.connection.cursor()
+#     cur.execute(sql, (orderId,))
+#     result = cur.fetchone()
+#     print(result)
+#     cur.close()
 
-fetch_files_db(157)     
+# fetch_files_db(157)     
 
 if __name__ == "__main__":
     app.run(host="0.0.0.0", port=8000, debug=True, threaded=True)
