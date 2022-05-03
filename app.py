@@ -812,7 +812,7 @@ def fetch_user_files():
 
 @app.route('/calcuate-final-cart', methods=["POST"])
 def calculate_cart():
-    num_dict = {"numbers":[], "Total_Cost":0}
+    num_dict = {"numbers":[], "Total_Cost":0, "A3_BW":0,"A3_C":0, "A4_BW":0, "A4_C":0       }
     total_pages = 0
     json_data = request.get_json()
     user_id = json_data.get('user_id', 0)
@@ -829,6 +829,15 @@ def calculate_cart():
         file_path = os.path.join(base_path, file['file'])
         quantity = int(file['quantity'])
         uid, mimet, size, typ, side, dstamp, filename = file['file'].split('_', 6)
+        key = ""
+        if typ.lower == "color" and size == "A3": 
+            key = "A3_C"
+        if typ.lower == "color" and size == "A4": 
+            key = "A4_C"
+        if typ.lower == "bw" and size == "A3": 
+            key = "A3_BW"
+        if typ.lower == "bw" and size == "A4": 
+            key = "A4_BW"
         if mimet == 'pdf':
             with open(file_path, 'rb') as fpath:
                 read_pdf = pypdf.PdfFileReader(fpath, strict=False)
@@ -836,6 +845,7 @@ def calculate_cart():
                 # num_dict['numbers'].append({"filename": filename, 'pages': num_pages})
                 print("NUM DICT +++", num_dict)
                 total_pages += file_pages*quantity
+                num_dict[key] = file_pages*quantity
         if mimet == 'image':
             if 'Total_Images' in num_dict.keys():
                 num_dict['Total_Images'] += 1
@@ -844,6 +854,7 @@ def calculate_cart():
             file_pages = 1
             # num_dict['numbers'].append({"filename": filename, 'pages': 1})
             total_pages += 1 * quantity
+            num_dict[key] = file_pages*quantity
         if mimet == 'doc':
             output = subprocess.run(
                 ["libreoffice", '--headless', '--convert-to', 'pdf', file_path, '--outdir', base_path])
@@ -857,6 +868,7 @@ def calculate_cart():
                 # num_dict['numbers'].append({"filename": filename, 'pages': num_pages})
                 print(file_pages)
                 total_pages += file_pages * quantity
+                num_dict[key] = file_pages*quantity
             print("On Going")
 
         cost = 0
@@ -874,8 +886,9 @@ def calculate_cart():
             cost += (round(A3_BC(file_pages),2)) * quantity
             print(cost)
         num_dict['numbers'].append({"filename": filename, 'pages': file_pages, "quantity":quantity,"cost":cost})
-        num_dict["Total_Cost"] += cost
-
+        # num_dict["Total_Cost"] += cost
+    
+    num_dict['Total_Cost'] = (round(A4_C(num_dict['A4_C']),2)) + (round(A4_BC(num_dict['A4_BW']),2)) + (round(A3_C(num_dict['A3_C']),2)) + (round(A3_BC(num_dict['A3_BW']),2))
     if total_pages < 4:
         print(total_pages) 
         num_dict["Total_Cost"] = 3
