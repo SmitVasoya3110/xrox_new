@@ -827,7 +827,7 @@ def decide_key(typ, size):
 
 @app.route('/calcuate-final-cart', methods=["POST"])
 def calculate_cart():
-    num_dict = {"numbers":[], "Total_Cost":0, "A3_BW":0,"A3_C":0, "A4_BW":0, "A4_C":0       }
+    num_dict = {"numbers":[], "Total_Cost":0, "A3_BW":0.00,"A3_C":0.00, "A4_BW":0.00, "A4_C":0.00}
     total_pages = 0
     json_data = request.get_json()
     user_id = json_data.get('user_id', 0)
@@ -899,7 +899,7 @@ def calculate_cart():
         # num_dict["Total_Cost"] += cost
     
     print(num_dict)
-    num_dict['Total_Cost'] = (round(A4_C(num_dict['A4_C']),2)) + (round(A4_BC(num_dict['A4_BW']),2)) + (round(A3_C(num_dict['A3_C']),2)) + (round(A3_BC(num_dict['A3_BW']),2))
+    num_dict['Total_Cost'] = A4_C(num_dict['A4_C']) + A4_BC(num_dict['A4_BW']) + A3_C(num_dict['A3_C']) + A3_BC(num_dict['A3_BW'])
     if total_pages < 4:
         print(total_pages) 
         num_dict["Total_Cost"] = 3
