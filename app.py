@@ -829,7 +829,6 @@ def calculate_cart():
         file_path = os.path.join(base_path, file['file'])
         quantity = int(file['quantity'])
         uid, mimet, size, typ, side, dstamp, filename = file['file'].split('_', 6)
-        key = ""
         if typ.lower == "color" and size == "A3": 
             key = "A3_C"
         if typ.lower == "color" and size == "A4": 
