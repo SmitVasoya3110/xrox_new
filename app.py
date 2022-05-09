@@ -104,7 +104,8 @@ def A4_BC(num: int):
     if num >= 100:
         cost = (99 * 0.2) + (num - 99) * 0.1
         return cost
-
+    if num<=0:
+        return 0.0
 
 def A3_BC(num: int):
     if 1 <= num <= 3:
@@ -119,6 +120,8 @@ def A3_BC(num: int):
     if num >= 100:
         cost = (99 * 0.4) + (num - 99) * 0.2
         return cost
+    if num<=0:
+        return 0.0
 
 
 def A4_C(num: int):
@@ -134,7 +137,8 @@ def A4_C(num: int):
     if num >= 100:
         cost = (99 * 0.4) + (num - 99) * 0.4
         return cost
-
+    if num<=0:
+        return 0.0
 
 def A3_C(num: int):
     if num == 1:
@@ -149,7 +153,8 @@ def A3_C(num: int):
     if num >= 100:
         cost = (99 * 1.2) + (num - 99) * 0.8
         return cost
-
+    if num<=0:
+        return 0.0
 
 def allowed_file(filename):
     return '.' in filename and filename.rsplit('.', 1)[1].lower() in ALLOWED_EXTENSIONS
@@ -899,7 +904,12 @@ def calculate_cart():
         # num_dict["Total_Cost"] += cost
     
     print(num_dict)
-    num_dict['Total_Cost'] = A4_C(num_dict['A4_C']) + A4_BC(num_dict['A4_BW']) + A3_C(num_dict['A3_C']) + A3_BC(num_dict['A3_BW'])
+    # a3_bw = num_dict['A3_BW']
+    # a4_bw = num_dict['A4_BW']
+    # a3_c = num_dict['A3_C']
+    # a4_bw = num_dict['A4_BW']
+
+    num_dict['Total_Cost'] = round(A4_C(num_dict['A4_C']) + A4_BC(num_dict['A4_BW']) + A3_C(num_dict['A3_C']) + A3_BC(num_dict['A3_BW']),2)
     if total_pages < 4:
         print(total_pages) 
         num_dict["Total_Cost"] = 3
