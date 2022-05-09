@@ -810,6 +810,18 @@ def fetch_user_files():
         file_res.append(dict_file)
     return jsonify({"files": file_res}), 200
 
+
+def decide_key(typ, size):
+    if typ.lower == "color" and size == "A3": 
+        return "A3_C"
+    if typ.lower == "color" and size == "A4": 
+        return "A4_C"
+    if typ.lower == "bw" and size == "A3": 
+        return "A3_BW"
+    if typ.lower == "bw" and size == "A4": 
+        return "A4_BW"
+
+
 @app.route('/calcuate-final-cart', methods=["POST"])
 def calculate_cart():
     num_dict = {"numbers":[], "Total_Cost":0, "A3_BW":0,"A3_C":0, "A4_BW":0, "A4_C":0       }
@@ -829,14 +841,7 @@ def calculate_cart():
         file_path = os.path.join(base_path, file['file'])
         quantity = int(file['quantity'])
         uid, mimet, size, typ, side, dstamp, filename = file['file'].split('_', 6)
-        if typ.lower == "color" and size == "A3": 
-            key = "A3_C"
-        if typ.lower == "color" and size == "A4": 
-            key = "A4_C"
-        if typ.lower == "bw" and size == "A3": 
-            key = "A3_BW"
-        if typ.lower == "bw" and size == "A4": 
-            key = "A4_BW"
+        key = decide_key(typ, size)
         print("KEY==============>",key)
         if mimet == 'pdf':
             with open(file_path, 'rb') as fpath:
