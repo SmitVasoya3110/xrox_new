@@ -838,6 +838,7 @@ def calculate_cart():
             key = "A3_BW"
         if typ.lower == "bw" and size == "A4": 
             key = "A4_BW"
+        print("KEY==============>",key)
         if mimet == 'pdf':
             with open(file_path, 'rb') as fpath:
                 read_pdf = pypdf.PdfFileReader(fpath, strict=False)
@@ -888,6 +889,7 @@ def calculate_cart():
         num_dict['numbers'].append({"filename": filename, 'pages': file_pages, "quantity":quantity,"cost":cost})
         # num_dict["Total_Cost"] += cost
     
+    print(num_dict)
     num_dict['Total_Cost'] = (round(A4_C(num_dict['A4_C']),2)) + (round(A4_BC(num_dict['A4_BW']),2)) + (round(A3_C(num_dict['A3_C']),2)) + (round(A3_BC(num_dict['A3_BW']),2))
     if total_pages < 4:
         print(total_pages) 
