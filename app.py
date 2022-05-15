@@ -126,7 +126,7 @@ def A3_BC(num: int):
 
 def A4_C(num: int):
     if 1 <= num <= 3:
-        cost = 2
+        cost = 3
         return cost
     if 3 <= num < 30:
         cost = 2 + (num - 3) * 0.8
