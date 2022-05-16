@@ -129,7 +129,7 @@ def A4_C(num: int):
         cost = 3
         return cost
     if 3 <= num < 30:
-        cost = 2 + (num - 3) * 0.8
+        cost = 3 + (num - 3) * 0.8
         return cost
     if 30 <= num < 100:
         cost = (29 * 0.6) + (num - 29) * 0.6
