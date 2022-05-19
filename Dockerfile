@@ -1,7 +1,7 @@
 FROM python:3
 ENV PYTHONUNBUFFERED=1
 WORKDIR /code
-COPY ./req.txt /code/
+COPY ./requests.txt /code/
 RUN apt update
 RUN apt -y upgrade
 RUN apt install -y libreoffice
