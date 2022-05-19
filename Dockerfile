@@ -6,7 +6,7 @@ RUN apt update
 # RUN apt -y upgrade
 # RUN apt install -y libreoffice
 RUN apt-get install libmagic1
-RUN pip3 install -r req.txt
+RUN pip3 install -r requirements.txt
 COPY . /code/
 
 EXPOSE 8000
