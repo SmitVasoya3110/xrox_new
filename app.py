@@ -22,6 +22,9 @@ import mimetypes
 from flask import Flask, request, redirect, jsonify, copy_current_request_context
 from werkzeug.utils import secure_filename
 
+from square.client import Client
+
+
 welcome_message = "Welcome to Online Printing. You have successfully registered with us.\nThank you..."
 
 stripe.api_key = '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'
