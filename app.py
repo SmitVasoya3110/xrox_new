@@ -4,11 +4,13 @@ import time
 import os
 import subprocess
 import json
+import configparser
+import  logging
+import uuid
 # import socket
 from flask_jwt_extended import JWTManager, create_access_token, jwt_required, get_jwt_identity, decode_token
 from jinja2 import Environment, PackageLoader, select_autoescape
 import datetime
-# from flask_jwt import current_identity
 from flask_cors import CORS
 import magic
 from flask_mysqldb import MySQL
@@ -24,14 +26,31 @@ from werkzeug.utils import secure_filename
 
 from square.client import Client
 
-square_client = Client(access_token='sandbox-sq0idb-SvqHq2eq43x61WjecHVNUw',
-    environment='sandbox')
-
 welcome_message = "Welcome to Online Printing. You have successfully registered with us.\nThank you..."
 
 stripe.api_key = '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'
 # stripe.api_key = 'sk_test_51KNpBmDiddQAhMW0bxLCLiUvtVWYguCrcucBj9bJmdPc9X85uGqMWD098FAyDaLqDjeG1iCVGWLuiP1a2qqB8Hm300FR6q18Dv'
 endpoint_secret = ''
+
+
+# SQUARE PAYMENT METHOD SETUP
+config = configparser.ConfigParser()
+config.read('config.ini')
+CONFIG_TYPE = config.get("DEFAULT", "environment").upper()
+"""PAYMENT_FROM_URL = (
+"https://web.squarecdn.com/v1/square.js" # change accordingly
+    if CONFIG_TYPE == "PRODUCTION"
+    else "https://sandbox.web.squarecdn.com/v1/square.js" # change accordingly
+)"""
+
+APPLICATION_ID = config.get(CONFIG_TYPE, "square_application_id")
+LOCATION_ID = config.get(CONFIG_TYPE, "square_location_id")
+ACCESS_TOKEN = config.get(CONFIG_TYPE, "square_access_token")
+client = Client(access_token=ACCESS_TOKEN,
+    environment=config.get("DEFAULT", "environment"))
+ACCOUNT_CURRENCY = "INR"
+
+
 app = Flask(__name__)
 CORS(app)
 
@@ -955,7 +974,7 @@ def delete_files():
 
 @app.route('/test-square', methods=["GET"])
 def test_square():
-    result = square_client.locations.list_locations()
+    result = client.locations.list_locations()
 
     if result.is_success():
         for location in result.body['locations']:
@@ -969,7 +988,33 @@ def test_square():
             print(error['category'])
             print(error['code'])
             print(error['detail'])
-    return result
+    return {"result":result.body}
+
+
+@app.post("/process-payment")
+def create_payment(payment):
+    payment = request.get_json()
+    logging.info("Creating payment")
+    # Charge the customer's card
+    create_payment_response = client.payments.create_payment(
+        body={
+            "source_id": payment['token'],
+            "idempotency_key": str(uuid.uuid4()),
+            "amount_money": {
+                "amount": payment['amount'],  # $1.00 charge
+                "currency": ACCOUNT_CURRENCY,
+            },
+            "order_id": payment['order_id']
+        }
+    )
+
+    logging.info("Payment created")
+    if create_payment_response.is_success():
+        return create_payment_response.body
+    elif create_payment_response.is_error():
+        return create_payment_response
+
+
 if __name__ == "__main__":
     app.run(host="0.0.0.0", port=8000, debug=True, threaded=True)
 
