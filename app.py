@@ -645,25 +645,46 @@ def pay():
         # files = jsdata.get('files')
         order_id = jsdata.get('order_id')
         tstamp = jsdata.get('timestamp')
+        token = jsdata.get('token')
 
         if not email:
             return 'You need to send an Email!', 400
 
-        intent = stripe.PaymentIntent.create(
-            amount=int(amount*100),
-            currency='aud',
-            receipt_email=email,
-            metadata={
-                'order_id': order_id,
-                'user_id': user_id,
-                'email': email,
-                'amount': amount,
-                'timestamp':str(tstamp)
+        create_payment_response = client.payments.create_payment(
+            body={
+                "source_id": token,
+                "idempotency_key": str(uuid.uuid4()),
+                "amount_money": {
+                    "amount": amount * 100,
+                    "currency": ACCOUNT_CURRENCY,
+                },
+                "order_id":order_id
             }
         )
+        if create_payment_response.is_success():
+            print("create_payment_response", create_payment_response)
+            return create_payment_response.body
+        elif create_payment_response.is_error():
+            # return create_payment_response
+            print("create_payment_response", create_payment_response)
 
-        return {"client_secret": intent['client_secret']}, 200
-    except stripe_error.InvalidRequestError as e:
+        return {"message": "Your payment is not succeeded. Try again with reducing files or with short filenames"}, 500
+
+    #     intent = stripe.PaymentIntent.create(
+    #         amount=int(amount*100),
+    #         currency='aud',
+    #         receipt_email=email,
+    #         metadata={
+    #             'order_id': order_id,
+    #             'user_id': user_id,
+    #             'email': email,
+    #             'amount': amount,
+    #             'timestamp':str(tstamp)
+    #         }
+    #     )
+    #
+    #     return {"client_secret": intent['client_secret']}, 200
+    except Exception as e:
         return {"message": "Your payment is not succeeded. Try again with reducing files or with short filenames"}
 
 @app.route('/webhook', methods=['POST'])
