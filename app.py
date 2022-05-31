@@ -48,7 +48,7 @@ LOCATION_ID = config.get(CONFIG_TYPE, "square_location_id")
 ACCESS_TOKEN = config.get(CONFIG_TYPE, "square_access_token")
 client = Client(access_token=ACCESS_TOKEN,
     environment=config.get("DEFAULT", "environment"))
-ACCOUNT_CURRENCY = "INR"
+ACCOUNT_CURRENCY = "AUD"
 
 
 app = Flask(__name__)
