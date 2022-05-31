@@ -658,7 +658,7 @@ def pay():
                     "amount": amount * 100,
                     "currency": ACCOUNT_CURRENCY,
                 },
-                "order_id":order_id
+                "order_id":str(order_id)
             }
         )
         if create_payment_response.is_success():
