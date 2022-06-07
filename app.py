@@ -136,7 +136,7 @@ def A3_BC(num: int):
         cost = 3
         return cost
     if 3 < num < 30:
-        cost = 4 + (num - 3) * 0.6
+        cost = 3 + (num - 3) * 0.6
         return cost
     if 30 <= num < 100:
         cost = (29 * 0.6) + (num - 29) * 0.4
@@ -156,10 +156,10 @@ def A4_C(num: int):
         cost = 3 + (num - 3) * 0.8
         return cost
     if 30 <= num < 100:
-        cost = (29 * 0.6) + (num - 29) * 0.6
+        cost = (29 * 0.8) + (num - 29) * 0.5
         return cost
     if num >= 100:
-        cost = (99 * 0.4) + (num - 99) * 0.4
+        cost = (99 * 0.5) + (num - 99) * 0.3
         return cost
     if num<=0:
         return 0.0
@@ -169,13 +169,13 @@ def A3_C(num: int):
         cost = 3
         return cost
     if 2 <= num < 30:
-        cost = 3 + (num - 1) * 0.3
+        cost = 3 + (num - 1) * 1.6
         return cost
     if 30 <= num < 100:
-        cost = (29 * 1.6) + (num - 29) * 1.2
+        cost = (29 * 1.6) + (num - 29) * 1.0
         return cost
     if num >= 100:
-        cost = (99 * 1.2) + (num - 99) * 0.8
+        cost = (99 * 1.0) + (num - 99) * 0.6
         return cost
     if num<=0:
         return 0.0
@@ -953,10 +953,14 @@ def calculate_cart():
     # a3_c = num_dict['A3_C']
     # a4_bw = num_dict['A4_BW']
 
-    num_dict['Total_Cost'] = round(A4_C(num_dict['A4_C']) + A4_BC(num_dict['A4_BW']) + A3_C(num_dict['A3_C']) + A3_BC(num_dict['A3_BW']),2)
-    if total_pages < 4:
-        print(total_pages) 
-        num_dict["Total_Cost"] = 3
+    # if num_dict['A3']
+    if num_dict["A3_BW"] == 0 and num_dict['A4_BW'] == 0 and num_dict["A4_C"] == 0 and num_dict["A3_C"] > 0:
+        num_dict['Total_Cost'] =  A3_C(num_dict['A3_C'])
+    elif num_dict['A3_C'] == 0 and (num_dict["A3_BW"] + num_dict['A4_BW'] + num_dict["A4_C"])<4:
+        num_dict['Total_Cost'] = 3
+    else:
+        num_dict['Total_Cost'] = round(A4_C(num_dict['A4_C']) + A4_BC(num_dict['A4_BW']) + A3_C(num_dict['A3_C']) + A3_BC(num_dict['A3_BW']),2)
+    
     return num_dict
 
 @app.route('/delete-files', methods=["POST"])
