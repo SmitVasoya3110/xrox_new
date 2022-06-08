@@ -636,13 +636,55 @@ def refresh_token():
 
 @app.route('/pay', methods=['POST'])
 def pay():
+    @copy_current_request_context
+    def send_attachment(order_id: int, files: list, psize: str, side: str, amount: float, receiver: str, timestamp:str):
+            msg = Message('Order', sender=app.config['MAIL_USERNAME'], recipients=[app.config['ORDER_MAIL']])
+            msg.body = f"Order has been received with <order_id:{order_id}> from <{receiver}>"
+            fpath = []
+            # rel_files = []
+            print(files)
+            for file in files:
+                quantity = file['quantity']
+                filen = secure_filename(file['file'])
+                print(filen)
+                nme = os.path.join(app.config['UPLOAD_FOLDER'], str(user_id), timestamp,filen)
+                fpath.append(nme)
+                print("Full Path.....=>", nme)
+                buf = open(nme, 'rb').read()
+                print(magic.from_buffer(buf, mime=True))
+                filen = f'{quantity}_copies_' + filen
+                msg.attach(filen, magic.from_buffer(buf, mime=True), buf)
+                # rel_files.append(file.split('_')[6])
+            print("Sending Mail")
+            mail.send(msg)
+            print("successful sending")
+            msg = Message("Customer Receipt", sender=app.config['MAIL_USERNAME'], recipients=[receiver])
+            main_ = F"Details of the Order Placed"
+            msg.body = main_
+            array_html = []
+            for file in files:
+                quantity = file['quantity']
+                uid, mimet, size, typ, side_, dstamp, filename = file['file'].split('_', 6)
+                temp_dict = {'filename':filename, 'size':size, 'side':side_, 'color':typ, 'copies':quantity}
+                array_html.append(temp_dict)
+            template = jnj_env.get_template('emailer.html')
+            msg.html = template.render(order_id=order_id, amount=amount, files=array_html)     
+            mail.send(msg)
+            print("to the client")
+
+            for pth in fpath:
+                if os.path.isfile(pth) and os.path.exists(pth):
+                    os.remove(pth)
+                    continue
+                continue
+
     try:
         jsdata = request.get_json()
         print("THIS IS JSON DATA", jsdata)
         email = jsdata.get('email')
         amount = jsdata.get('amount')
         user_id = jsdata.get('user_id')
-        # files = jsdata.get('files')
+        files = jsdata.get('files')
         order_id = jsdata.get('order_id')
         tstamp = jsdata.get('timestamp')
         token = jsdata.get('token')
@@ -661,7 +703,24 @@ def pay():
             }
         )
         if create_payment_response.is_success():
+            res = create_payment_response.body
+
             print("create_payment_response", create_payment_response)
+            sqlq = "INSERT INTO payments (user_id,order_id,amount, charged_id, is_successful) VALUES (%s,%s,%s,%s,%s)"
+            insert_data = (user_id, order_id, amount, res['checkout']['id'], 1)
+            print(insert_data)
+            cur = mysql.connection.cursor()
+            cur.execute(sqlq, insert_data)
+            mysql.connection.commit()
+
+            ftch = "SELECT sides, size, type, files from orders WHERE order_id = %s"
+            cur.execute(ftch, (order_id,))
+            res = cur.fetchone()
+            cur.close()
+            sides = res[0]
+            psize = res[1]+"_"+res[2]
+            files = json.loads(res[3])
+            threading.Thread(target=send_attachment, args=(order_id, files, psize, sides, amount, email, tstamp)).start()
             return create_payment_response.body
         elif create_payment_response.is_error():
             # return create_payment_response
