@@ -704,7 +704,7 @@ def pay():
         )
         if create_payment_response.is_success():
             res = create_payment_response.body
-
+            print("Response", res)
             print("create_payment_response", create_payment_response)
             sqlq = "INSERT INTO payments (user_id,order_id,amount, charged_id, is_successful) VALUES (%s,%s,%s,%s,%s)"
             insert_data = (user_id, order_id, amount, res['checkout']['id'], 1)
