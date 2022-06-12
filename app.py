@@ -638,6 +638,7 @@ def refresh_token():
 def pay():
     @copy_current_request_context
     def send_attachment(order_id: int, files: list, psize: str, side: str, amount: float, receiver: str, timestamp:str):
+            print("In send attachment")
             msg = Message('Order', sender=app.config['MAIL_USERNAME'], recipients=[app.config['ORDER_MAIL']])
             msg.body = f"Order has been received with <order_id:{order_id}> from <{receiver}>"
             fpath = []
@@ -720,6 +721,7 @@ def pay():
             sides = res[0]
             psize = res[1]+"_"+res[2]
             files = json.loads(res[3])
+            print("starting the thread")
             threading.Thread(target=send_attachment, args=(order_id, files, psize, sides, amount, email, tstamp)).start()
             return create_payment_response.body
         elif create_payment_response.is_error():
