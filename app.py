@@ -679,55 +679,55 @@ def pay():
                     continue
                 continue
 
-    try:
-        jsdata = request.get_json()
-        print("THIS IS JSON DATA", jsdata)
-        email = jsdata.get('email')
-        amount = jsdata.get('amount')
-        user_id = jsdata.get('user_id')
-        files = jsdata.get('files')
-        order_id = jsdata.get('order_id')
-        tstamp = jsdata.get('timestamp')
-        token = jsdata.get('token')
 
-        if not email:
-            return 'You need to send an Email!', 400
+    jsdata = request.get_json()
+    print("THIS IS JSON DATA", jsdata)
+    email = jsdata.get('email')
+    amount = jsdata.get('amount')
+    user_id = jsdata.get('user_id')
+    files = jsdata.get('files')
+    order_id = jsdata.get('order_id')
+    tstamp = jsdata.get('timestamp')
+    token = jsdata.get('token')
 
-        create_payment_response = client.payments.create_payment(
-            body={
-                "source_id": token,
-                "idempotency_key": str(uuid.uuid4()),
-                "amount_money": {
-                    "amount": amount * 100,
-                    "currency": ACCOUNT_CURRENCY,
-                }
+    if not email:
+        return 'You need to send an Email!', 400
+
+    create_payment_response = client.payments.create_payment(
+        body={
+            "source_id": token,
+            "idempotency_key": str(uuid.uuid4()),
+            "amount_money": {
+                "amount": amount * 100,
+                "currency": ACCOUNT_CURRENCY,
             }
-        )
-        if create_payment_response.is_success():
-            res = create_payment_response.body
-            print("Response", res)
-            print("create_payment_response", create_payment_response)
-            sqlq = "INSERT INTO payments (user_id,order_id,amount, charged_id, is_successful) VALUES (%s,%s,%s,%s,%s)"
-            insert_data = (user_id, order_id, amount, res['checkout']['id'], 1)
-            print(insert_data)
-            cur = mysql.connection.cursor()
-            cur.execute(sqlq, insert_data)
-            mysql.connection.commit()
+        }
+    )
+    if create_payment_response.is_success():
+        res = create_payment_response.body
+        print("Response", res)
+        print("create_payment_response", create_payment_response)
+        sqlq = "INSERT INTO payments (user_id,order_id,amount, charged_id, is_successful) VALUES (%s,%s,%s,%s,%s)"
+        insert_data = (user_id, order_id, amount, res['checkout']['id'], 1)
+        print(insert_data)
+        cur = mysql.connection.cursor()
+        cur.execute(sqlq, insert_data)
+        mysql.connection.commit()
 
-            ftch = "SELECT sides, size, type, files from orders WHERE order_id = %s"
-            cur.execute(ftch, (order_id,))
-            res = cur.fetchone()
-            cur.close()
-            sides = res[0]
-            psize = res[1]+"_"+res[2]
-            files = json.loads(res[3])
-            print("starting the thread")
-            threading.Thread(target=send_attachment, args=(order_id, files, psize, sides, amount, email, tstamp)).start()
-            return create_payment_response.body
-        elif create_payment_response.is_error():
-            # return create_payment_response
-            print("==ERROR=="*20)
-            print("create_payment_response", create_payment_response)
+        ftch = "SELECT sides, size, type, files from orders WHERE order_id = %s"
+        cur.execute(ftch, (order_id,))
+        res = cur.fetchone()
+        cur.close()
+        sides = res[0]
+        psize = res[1]+"_"+res[2]
+        files = json.loads(res[3])
+        print("starting the thread")
+        threading.Thread(target=send_attachment, args=(order_id, files, psize, sides, amount, email, tstamp)).start()
+        return create_payment_response.body, 201
+    elif create_payment_response.is_error():
+        # return create_payment_response
+        print("==ERROR=="*20)
+        print("create_payment_response", create_payment_response)
 
         return {"message": "Your payment is not succeeded. Try again with reducing files or with short filenames"}, 500
 
@@ -745,8 +745,8 @@ def pay():
     #     )
     #
     #     return {"client_secret": intent['client_secret']}, 200
-    except Exception as e:
-        return {"message": "Your payment is not succeeded. Try again with reducing files or with short filenames"}
+    # except Exception as e:
+    #     return {"message": "Your payment is not succeeded. Try again with reducing files or with short filenames"}
 
 @app.route('/webhook', methods=['POST'])
 def webhook():
