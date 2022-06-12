@@ -724,6 +724,7 @@ def pay():
             return create_payment_response.body
         elif create_payment_response.is_error():
             # return create_payment_response
+            print("==ERROR=="*20)
             print("create_payment_response", create_payment_response)
 
         return {"message": "Your payment is not succeeded. Try again with reducing files or with short filenames"}, 500
