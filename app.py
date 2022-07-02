@@ -47,7 +47,7 @@ APPLICATION_ID = config.get(CONFIG_TYPE, "square_application_id")
 LOCATION_ID = config.get(CONFIG_TYPE, "square_location_id")
 ACCESS_TOKEN = config.get(CONFIG_TYPE, "square_access_token")
 client = Client(access_token=ACCESS_TOKEN,
-    environment=config.get("DEFAULT", "environment"))
+    environment=config.get("PRODUCTION", "environment"))
 ACCOUNT_CURRENCY = "AUD"
 
 
@@ -1017,7 +1017,7 @@ def calculate_cart():
 
     # if num_dict['A3']
     if num_dict["A3_BW"] == 0 and num_dict['A4_BW'] == 0 and num_dict["A4_C"] == 0 and num_dict["A3_C"] > 0:
-        num_dict['Total_Cost'] =  A3_C(num_dict['A3_C'])
+        num_dict['Total_Cost'] = round(A3_C(num_dict['A3_C']),2)
     elif num_dict['A3_C'] == 0 and (num_dict["A3_BW"] + num_dict['A4_BW'] + num_dict["A4_C"])<4:
         num_dict['Total_Cost'] = 3
     else:
