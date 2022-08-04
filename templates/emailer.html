@@ -56,12 +56,14 @@
 <body>
 <table class="table">
         <tr>
-          <td> Order Id {{ order_id }} </td>
+          <td>Email Id: {{user_id}}</td>
+          <td> Order Id: {{ order_id }} </td>
         </tr>
 
         <tr>
             <td>Amount $: {{ amount }} </td>
         </tr>
+
 {% for obj in files %}
     <tr>
      <td>{{obj['filename']}}</td>

@@ -47,7 +47,7 @@ APPLICATION_ID = config.get(CONFIG_TYPE, "square_application_id")
 LOCATION_ID = config.get(CONFIG_TYPE, "square_location_id")
 ACCESS_TOKEN = config.get(CONFIG_TYPE, "square_access_token")
 client = Client(access_token=ACCESS_TOKEN,
-    environment=config.get("PRODUCTION", "environment"))
+    environment=config.get("SANDBOX", "environment"))
 ACCOUNT_CURRENCY = "AUD"
 
 
@@ -639,7 +639,7 @@ def pay():
     @copy_current_request_context
     def send_attachment(order_id: int, files: list, psize: str, side: str, amount: float, receiver: str, timestamp:str):
             print("In send attachment")
-            msg = Message('Order', sender=app.config['MAIL_USERNAME'], recipients=[app.config['ORDER_MAIL']])
+            msg = Message(f'Order {order_id}', sender=app.config['MAIL_USERNAME'], recipients=[app.config['ORDER_MAIL']])
             msg.body = f"Order has been received with <order_id:{order_id}> from <{receiver}>"
             fpath = []
             # rel_files = []
@@ -669,7 +669,7 @@ def pay():
                 temp_dict = {'filename':filename, 'size':size, 'side':side_, 'color':typ, 'copies':quantity}
                 array_html.append(temp_dict)
             template = jnj_env.get_template('emailer.html')
-            msg.html = template.render(order_id=order_id, amount=amount, files=array_html)     
+            msg.html = template.render(order_id=order_id, amount=amount, files=array_html, user_id=receiver)     
             mail.send(msg)
             print("to the client")
 
