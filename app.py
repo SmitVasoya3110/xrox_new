@@ -692,9 +692,7 @@ def pay():
 
     if not email:
         return 'You need to send an Email!', 400
-
-    create_payment_response = client.payments.create_payment(
-        body={
+    body_ = {
             "source_id": token,
             "idempotency_key": str(uuid.uuid4()),
             "amount_money": {
@@ -702,6 +700,9 @@ def pay():
                 "currency": ACCOUNT_CURRENCY,
             }
         }
+    print(body_)
+    create_payment_response = client.payments.create_payment(
+        body=body_
     )
     if create_payment_response.is_success():
         res = create_payment_response.body
