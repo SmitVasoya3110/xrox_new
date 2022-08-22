@@ -659,7 +659,7 @@ def pay():
             print("Sending Mail")
             mail.send(msg)
             print("successful sending")
-            msg = Message("Customer Receipt", sender=app.config['MAIL_USERNAME'], recipients=[receiver])
+            msg = Message(f"Customer Receipt with order {order_id}", sender=app.config['MAIL_USERNAME'], recipients=[receiver])
             main_ = F"Details of the Order Placed"
             msg.body = main_
             array_html = []
