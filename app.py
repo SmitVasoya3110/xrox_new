@@ -64,11 +64,11 @@ jwt = JWTManager(app)
 app.config['UPLOAD_FOLDER'] = os.path.join(os.path.dirname(__file__), 'uploads')
 app.config['MAIL_SERVER'] = 'smtp.gmail.com'
 app.config['MAIL_PORT'] = 465
-app.config['MAIL_USERNAME'] = 'ssssmmmmiiiitttt@gmail.com'
-app.config['MAIL_PASSWORD'] = 'dbzxmyxliwpgdjyh'
+app.config['MAIL_USERNAME'] = 'ihub7.east@gmail.com'
+app.config['MAIL_PASSWORD'] = 'veuzogxtjudwhxcr'
 app.config['MAIL_USE_TLS'] = False
 app.config['MAIL_USE_SSL'] = True
-app.config['ORDER_MAIL'] = "smitvasoya3110@gmail.com"
+app.config['ORDER_MAIL'] = "ihub7.east@gmail.com"
 mail = Mail(app)
 
 app.config['MYSQL_HOST'] = 'db'  # db
