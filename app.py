@@ -66,6 +66,8 @@ app.config['MAIL_SERVER'] = 'smtp.gmail.com'
 app.config['MAIL_PORT'] = 465
 app.config['MAIL_USERNAME'] = 'ihub7.east@gmail.com'
 app.config['MAIL_PASSWORD'] = 'veuzogxtjudwhxcr'
+# app.config['MAIL_USERNAME'] = 'ihub7.east@gmail.com'
+# app.config['MAIL_PASSWORD'] = 'veuzogxtjudwhxcr'
 app.config['MAIL_USE_TLS'] = False
 app.config['MAIL_USE_SSL'] = True
 app.config['ORDER_MAIL'] = "ihub7.east@gmail.com"
@@ -644,9 +646,12 @@ def pay():
             fpath = []
             # rel_files = []
             print(files)
+            clientTable = []
             for file in files:
+                template = jnj_env.get_template('clientMail.html')
                 quantity = file['quantity']
                 filen = secure_filename(file['file'])
+                uid, mimet, size, typ, side_, dstamp, filename = file['file'].split('_', 6)
                 print(filen)
                 nme = os.path.join(app.config['UPLOAD_FOLDER'], str(user_id), timestamp,filen)
                 fpath.append(nme)
@@ -654,9 +659,11 @@ def pay():
                 buf = open(nme, 'rb').read()
                 print(magic.from_buffer(buf, mime=True))
                 filen = f'{quantity}_copies_' + filen
+                temp_dict = {'filename':filen, 'size':size, 'side':side_, 'color':typ, 'copies':quantity}
                 msg.attach(filen, magic.from_buffer(buf, mime=True), buf)
                 # rel_files.append(file.split('_')[6])
             print("Sending Mail")
+            msg.html = template.render(order_id=order_id, amount=amount, files=clientTable, user_id=receiver)
             mail.send(msg)
             print("successful sending")
             msg = Message(f"Customer Receipt with order {order_id}", sender=app.config['MAIL_USERNAME'], recipients=[receiver])
