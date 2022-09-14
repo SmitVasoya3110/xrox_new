@@ -647,8 +647,8 @@ def pay():
             # rel_files = []
             print(files)
             clientTable = []
+            template = jnj_env.get_template('clientMail.html')
             for file in files:
-                template = jnj_env.get_template('clientMail.html')
                 quantity = file['quantity']
                 filen = secure_filename(file['file'])
                 uid, mimet, size, typ, side_, dstamp, filename = file['file'].split('_', 6)
