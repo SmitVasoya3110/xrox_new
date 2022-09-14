@@ -55,6 +55,15 @@
 </head>
 <body>
 <table class="table">
+  {% for obj in files %}
+      <tr>
+       <td>{{obj['filename']}}</td>
+       <td>{{obj['size']}}</td>
+       <td>{{obj['color']}}</td>
+       <td>{{obj['side']}}</td>
+       <td>{{obj['copies']}} copies</td>
+      </tr>
+  {% endfor %}
         <tr>
           <td>Email Id: {{user_id}}</td>
           <td> Order Id: {{ order_id }} </td>
@@ -64,15 +73,6 @@
             <td>Amount $: {{ amount }} </td>
         </tr>
 
-{% for obj in files %}
-    <tr>
-     <td>{{obj['filename']}}</td>
-     <td>{{obj['size']}}</td>
-     <td>{{obj['color']}}</td>
-     <td>{{obj['side']}}</td>
-     <td>{{obj['copies']}} copies</td>
-    </tr>
-{% endfor %}
 
 </table>
 <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.9.2/dist/umd/popper.min.js" integrity="sha384-IQsoLXl5PILFhosVNubq5LC7Qb9DXgDA9i+tQ8Zj3iwWAwPtgFTxbJ8NT4GN1R8p" crossorigin="anonymous"></script>
