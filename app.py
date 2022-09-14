@@ -47,7 +47,7 @@ APPLICATION_ID = config.get(CONFIG_TYPE, "square_application_id")
 LOCATION_ID = config.get(CONFIG_TYPE, "square_location_id")
 ACCESS_TOKEN = config.get(CONFIG_TYPE, "square_access_token")
 client = Client(access_token=ACCESS_TOKEN,
-    environment=config.get("PRODUCTION", "environment"))
+    environment=config.get("SANDBOX", "environment"))
 ACCOUNT_CURRENCY = "AUD"
 
 
