@@ -662,6 +662,7 @@ def pay():
                 temp_dict = {'filename':filen, 'size':size, 'side':side_, 'color':typ, 'copies':quantity}
                 msg.attach(filen, magic.from_buffer(buf, mime=True), buf)
                 # rel_files.append(file.split('_')[6])
+                clientTable.append(temp_dict)
             print("Sending Mail")
             msg.html = template.render(order_id=order_id, amount=amount, files=clientTable, user_id=receiver)
             mail.send(msg)
@@ -675,10 +676,10 @@ def pay():
                 uid, mimet, size, typ, side_, dstamp, filename = file['file'].split('_', 6)
                 temp_dict = {'filename':filename, 'size':size, 'side':side_, 'color':typ, 'copies':quantity}
                 array_html.append(temp_dict)
-            print("ARRAY HTML", array_html)
+            # print("ARRAY HTML", array_html)
             template = jnj_env.get_template('emailer.html')
             msg.html = template.render(order_id=order_id, amount=amount, files=array_html, user_id=receiver)
-            print(template.render(order_id=order_id, amount=amount, files=array_html, user_id=receiver))     
+            # print(template.render(order_id=order_id, amount=amount, files=array_html, user_id=receiver))     
             mail.send(msg)
             print("to the client")
 
