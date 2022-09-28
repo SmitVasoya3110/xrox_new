@@ -191,6 +191,7 @@ def CustomerLogin():
     json_data = request.json
     email = json_data.get('Email_Id', '')
     password = json_data.get('Password', '')
+    print(email)
     if not email or not password:
         return jsonify({"message": "Credential Needed"})
     try:
@@ -215,7 +216,7 @@ def CustomerLogin():
 
             dic2 = {}
             dic3 = {}
-            expires = datetime.timedelta(hours=2)
+            expires = datetime.timedelta(hours=1)
             dic1["access_token"] = create_access_token(identity=rows[3], expires_delta=expires)
             # dic1["refresh_token"] = create_refresh_token(identity=i[3])
 

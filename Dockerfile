@@ -6,6 +6,7 @@ RUN apt update
 RUN apt -y upgrade
 RUN apt install -y libreoffice
 RUN apt-get install libmagic1
+RUN mkdir uploads
 RUN pip3 install -r requirements.txt
 COPY . /code/
 
